@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+Solution to Prime Game problem
+"""
 
 
 def is_winner(x, nums):
