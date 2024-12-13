@@ -1,43 +1,58 @@
 #!/usr/bin/python3
 
 
-def isWinner(x, nums):
-    def sieve(n):
-        """ Returns a list of primes up to n using the Sieve of Eratosthenes. """
-        is_prime = [True] * (n + 1)
-        p = 2
-        while (p * p <= n):
-            if (is_prime[p] == True):
-                for i in range(p * p, n + 1, p):
-                    is_prime[i] = False
-            p += 1
-        return [p for p in range(2, n + 1) if is_prime[p]]
+def is_winner(x, nums):
+    """
+    Determines the winner of each game round and the overall winner.
 
-    def play_game(n):
-        """ Simulates the game for a given n and returns the winner. """
-        if n < 2:
-            return "Ben"  # If n < 2, Maria cannot make a move
-        
-        primes = sieve(n)
-        prime_count = len(primes)
-        
-        # If the count of primes is odd, Maria wins; if even, Ben wins
-        return "Maria" if prime_count % 2 == 1 else "Ben"
+    Parameters:
+        x (int): The number of rounds.
+        nums (list): List of integers representing the max number in each round.
 
+    Returns:
+        str: Name of the player with the most wins ("Maria" or "Ben"), or None if tied.
+    """
+    if x < 1 or not nums:
+        return None
+
+    # Determine the maximum number to calculate primes up to
+    max_n = max(nums)
+
+    # Step 1: Use Sieve of Eratosthenes to find all primes up to max_n
+    primes = [True] * (max_n + 1)
+    primes[0] = primes[1] = False  # 0 and 1 are not primes
+
+    for i in range(2, int(max_n ** 0.5) + 1):
+        if primes[i]:
+            for j in range(i * i, max_n + 1, i):
+                primes[j] = False
+
+    # Precompute the cumulative number of primes up to each number
+    prime_counts = [0] * (max_n + 1)
+    for i in range(1, max_n + 1):
+        prime_counts[i] = prime_counts[i - 1] + (1 if primes[i] else 0)
+
+    # Step 2: Simulate each game round
     maria_wins = 0
     ben_wins = 0
 
     for n in nums:
-        winner = play_game(n)
-        if winner == "Maria":
+        # Determine the total number of primes up to n
+        total_primes = prime_counts[n]
+
+        # Maria wins if the total number of primes is odd, Ben wins if even
+        if total_primes % 2 == 1:
             maria_wins += 1
         else:
             ben_wins += 1
 
+    # Step 3: Determine the overall winner
     if maria_wins > ben_wins:
         return "Maria"
-    elif ben_wins > maria_wins:
+    if ben_wins > maria_wins:
         return "Ben"
-    else:
-        return None
-    
+    return None
+
+# Example usage
+if __name__ == "__main__":
+    print("Winner:", is_winner(5, [2, 5, 1, 4, 3]))
